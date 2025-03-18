@@ -20,7 +20,7 @@ public class GlobalExceptionHandler {
     public ResponseEntity<Map<String, String>> handleException(Exception ex) {
         Map<String, String> response = new LinkedHashMap<>();
         response.put("application name:", appName);
-        response.put("message", ex.getMessage());
+        response.put("message:", ex.getMessage());
         return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
     }
 
@@ -28,7 +28,7 @@ public class GlobalExceptionHandler {
     public ResponseEntity<Map<String, String>> handleCustomerNotFound(Exception ex) {
         Map<String, String> response = new LinkedHashMap<>();
         response.put("application name:", appName);
-        response.put("message", ex.getMessage());
+        response.put("message:", ex.getMessage());
         return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
     }
 
@@ -36,7 +36,7 @@ public class GlobalExceptionHandler {
     public ResponseEntity<Map<String, String>> handleDishNotFound(Exception ex) {
         Map<String, String> response = new LinkedHashMap<>();
         response.put("application name:", appName);
-        response.put("message", ex.getMessage());
+        response.put("message:", ex.getMessage());
         return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
     }
 }

@@ -27,7 +27,14 @@ public class NutritionServiceImpl implements NutritionService {
     private final DishRepository dishRepository;
     private final MealRepository mealRepository;
 
-    // Добавление приема пищи
+    /**
+     * Добавляет новый прием пищи для указанного пользователя
+     *
+     * @param dto DTO с данными о приеме пищи
+     * @return сохраненная сущность приема пищи
+     * @throws CustomerNotFoundException если пользователь не найден
+     * @throws DishNotFoundException если блюдо не найдено
+     */
     @Override
     public MealEntity addMealEntry(MealEntryRecord dto) throws CustomerNotFoundException {
         CustomerEntity user = customerRepository.findById(dto.userId())
@@ -51,7 +58,14 @@ public class NutritionServiceImpl implements NutritionService {
         return mealRepository.save(meal);
     }
 
-    // Генерация дневного отчета
+    /**
+     * Генерирует дневной отчет по питанию
+     *
+     * @param userId ID пользователя
+     * @param date дата для отчета
+     * @return DTO с детализированными данными отчета
+     * @throws CustomerNotFoundException если пользователь не найден
+     */
     @Override
     public DailyReportRecord generateDailyReport(Long userId, LocalDate date)
             throws CustomerNotFoundException {
@@ -78,7 +92,13 @@ public class NutritionServiceImpl implements NutritionService {
         );
     }
 
-    // История питания
+    /**
+     * Возвращает историю питания за указанное количество дней
+     *
+     * @param userId ID пользователя
+     * @param days количество дней для выборки
+     * @return DTO с агрегированными данными по дням
+     */
     @Override
     public NutritionHistoryRecord getNutritionHistory(Long userId, int days) {
         LocalDate endDate = LocalDate.now();
@@ -103,7 +123,12 @@ public class NutritionServiceImpl implements NutritionService {
         return new NutritionHistoryRecord(history);
     }
 
-    // Создание пользователя
+    /**
+     * Создает нового пользователя в системе
+     *
+     * @param dto DTO с данными пользователя
+     * @return сохраненная сущность пользователя
+     */
     @Override
     public CustomerEntity createUser(UserCreateRecord dto) {
         CustomerEntity user = new CustomerEntity();

@@ -27,6 +27,7 @@
 	</scm>
 	<properties>
 		<java.version>17</java.version>
+		<swagger.doc.version>2.7.0</swagger.doc.version>
 	</properties>
 	<dependencies>
 		<!-- BOOT -->
@@ -63,6 +64,13 @@
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-test</artifactId>
 			<scope>test</scope>
+		</dependency>
+
+		<!-- DOC -->
+		<dependency>
+			<groupId>org.springdoc</groupId>
+			<artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
+			<version>${swagger.doc.version}</version>
 		</dependency>
 
 		<!-- OTHER -->
