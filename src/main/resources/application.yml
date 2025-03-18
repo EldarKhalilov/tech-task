@@ -1,0 +1,16 @@
+spring:
+  application:
+    name: tt
+
+  datasource:
+    url: ${DB_URL:jdbc:postgresql://localhost:5444/example}
+    username: ${DB_USER:abuser}
+    password: ${DB_PASSWORD:abuser}
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    open-in-view: false
+
+server:
+  port: 8081
