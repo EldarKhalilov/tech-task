@@ -1,5 +1,6 @@
 package com.theus.tt.entity;
 
+import com.theus.tt.entity.enums.MealType;
 import jakarta.persistence.*;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -23,7 +24,6 @@ public class MealEntity extends AuditableEntity {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "customer_id")
     private CustomerEntity customer;
 
     private LocalDateTime mealTime;
@@ -31,8 +31,13 @@ public class MealEntity extends AuditableEntity {
     @Enumerated(EnumType.STRING)
     private MealType mealType;
 
-    @OneToMany(mappedBy = "meal", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "meal", cascade = CascadeType.ALL)
     private List<MealDishEntity> dishes = new ArrayList<>();
+
+    // Расчет общей питательной ценности
+    public double getTotalCalories() {
+        return dishes.stream().mapToDouble(MealDishEntity::getTotalCalories).sum();
+    }
 
     // Добавление блюда в прием пищи
     public void addDish(DishEntity dish, int portions) {
@@ -41,12 +46,5 @@ public class MealEntity extends AuditableEntity {
         mealDish.setDish(dish);
         mealDish.setPortions(portions);
         dishes.add(mealDish);
-    }
-
-    // Расчет общей питательной ценности
-    public double getTotalCalories() {
-        return dishes.stream()
-                .mapToDouble(MealDishEntity::getTotalCalories)
-                .sum();
     }
 }

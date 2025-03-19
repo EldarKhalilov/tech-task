@@ -1,6 +1,6 @@
-package com.theus.tt.dto;
+package com.theus.tt.dto.response;
 
-import com.theus.tt.entity.MealType;
+import com.theus.tt.entity.enums.MealType;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;

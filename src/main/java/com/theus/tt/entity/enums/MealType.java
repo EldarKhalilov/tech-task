@@ -1,4 +1,4 @@
-package com.theus.tt.entity;
+package com.theus.tt.entity.enums;
 
 public enum MealType {
     BREAKFAST,

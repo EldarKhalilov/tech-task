@@ -1,4 +1,4 @@
-package com.theus.tt.dto;
+package com.theus.tt.dto.response;
 
 import java.time.LocalDate;
 import java.util.List;
