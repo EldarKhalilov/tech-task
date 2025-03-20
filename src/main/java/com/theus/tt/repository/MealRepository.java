@@ -9,6 +9,6 @@ import java.util.List;
 
 @Repository
 public interface MealRepository extends JpaRepository<MealEntity, Long> {
-    List<MealEntity> findByCustomerIdAndMealTimeBetween
-            (Long customerId, LocalDateTime mealTime, LocalDateTime mealTime2);
+    List<MealEntity> findByCustomerIdAndMealTimeBetween(
+            Long customerId, LocalDateTime mealTimeStart, LocalDateTime mealTimeEnd);
 }

@@ -42,10 +42,17 @@ public class MealServiceImpl implements MealService {
         repository.save(meal);
     }
 
+    // для одного запроса на конкретный день
     @Override
     public List<MealEntity> getMealsByUserAndDate(Long userId, LocalDate date) {
         LocalDateTime start = date.atStartOfDay();
         LocalDateTime end = date.atTime(23, 59, 59);
+        return repository.findByCustomerIdAndMealTimeBetween(userId, start, end);
+    }
+
+    // для нескольких запросов по дням
+    @Override
+    public List<MealEntity> getMealsByUserAndDateRange(Long userId, LocalDateTime start, LocalDateTime end) {
         return repository.findByCustomerIdAndMealTimeBetween(userId, start, end);
     }
 
@@ -60,11 +67,15 @@ public class MealServiceImpl implements MealService {
 
     private void validateDishesExist(List<MealDishRequest> dishes)
             throws DishNotFoundException {
+        boolean allDishesExist = dishes.stream()
+                .allMatch(dishReq -> dishService.existsById(dishReq.dishId()));
 
-        for (MealDishRequest dishReq : dishes) {
-            if (!dishService.existsById(dishReq.dishId())) {
-                throw new DishNotFoundException("Dish not found: " + dishReq.dishId());
-            }
+        if (!allDishesExist) {
+            List<Long> missingIds = dishes.stream()
+                    .map(MealDishRequest::dishId)
+                    .filter(id -> !dishService.existsById(id))
+                    .toList();
+            throw new DishNotFoundException("Dishes not found: " + missingIds);
         }
     }
 }

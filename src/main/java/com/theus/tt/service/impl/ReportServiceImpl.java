@@ -12,8 +12,12 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
+import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Service
 @RequiredArgsConstructor
@@ -44,15 +48,27 @@ public class ReportServiceImpl implements ReportService {
         LocalDate endDate = LocalDate.now();
         LocalDate startDate = endDate.minusDays(days - 1);
 
-        List<NutritionHistoryRecord.DailySummary> history = new ArrayList<>();
+        LocalDateTime startDateTime = startDate.atStartOfDay();
+        LocalDateTime endDateTime = endDate.atTime(23, 59, 59);
 
-        for (LocalDate date = startDate; !date.isAfter(endDate); date = date.plusDays(1)) {
-            List<MealEntity> meals = mealService.getMealsByUserAndDate(userId, date);
-            double totalCalories = meals.stream()
-                    .mapToDouble(MealEntity::getTotalCalories)
-                    .sum();
-            history.add(new NutritionHistoryRecord.DailySummary(date, totalCalories, meals.size()));
-        }
+        List<MealEntity> allMeals = mealService.getMealsByUserAndDateRange(userId, startDateTime, endDateTime);
+
+        Map<LocalDate, List<MealEntity>> mealsByDate = allMeals.stream()
+                .collect(Collectors.groupingBy(
+                        meal -> meal.getMealTime().toLocalDate()
+                ));
+
+        List<NutritionHistoryRecord.DailySummary> history = Stream
+                .iterate(startDate, date -> date.plusDays(1))
+                .limit(days)
+                .map(date -> {
+                    List<MealEntity> meals = mealsByDate.getOrDefault(date, Collections.emptyList());
+                    double totalCalories = meals.stream()
+                            .mapToDouble(MealEntity::getTotalCalories)
+                            .sum();
+                    return new NutritionHistoryRecord.DailySummary(date, totalCalories, meals.size());
+                })
+                .toList();
 
         return new NutritionHistoryRecord(history);
     }
