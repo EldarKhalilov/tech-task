@@ -3,6 +3,7 @@ package com.theus.tt.service.impl;
 import com.theus.tt.dto.request.DishCreateRecord;
 import com.theus.tt.entity.DishEntity;
 import com.theus.tt.exception.DishNotFoundException;
+import com.theus.tt.mapper.DishMapper;
 import com.theus.tt.repository.DishRepository;
 import com.theus.tt.service.DishService;
 import lombok.RequiredArgsConstructor;
@@ -11,29 +12,23 @@ import org.springframework.stereotype.Service;
 @Service
 @RequiredArgsConstructor
 public class DishServiceImpl implements DishService {
-    private final DishRepository dishRepository;
+    private final DishRepository repository;
+    private final DishMapper mapper;
 
     @Override
     public void createDish(DishCreateRecord dto) {
-
-        var dish = new DishEntity();
-        dish.setName(dto.name());
-        dish.setCaloriesPerPortion(dto.caloriesPerPortion());
-        dish.setProteins(dto.proteins());
-        dish.setFats(dto.fats());
-        dish.setCarbohydrates(dto.carbohydrates());
-
-        dishRepository.save(dish);
+        DishEntity dish = mapper.toEntity(dto);
+        repository.save(dish);
     }
 
     @Override
     public DishEntity getDishById(Long id) throws DishNotFoundException {
-        return dishRepository.findById(id)
+        return repository.findById(id)
                 .orElseThrow(DishNotFoundException::new);
     }
 
     @Override
     public boolean existsById(Long id) {
-        return dishRepository.existsById(id);
+        return repository.existsById(id);
     }
 }

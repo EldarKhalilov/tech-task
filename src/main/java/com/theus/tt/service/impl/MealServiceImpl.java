@@ -7,6 +7,7 @@ import com.theus.tt.entity.DishEntity;
 import com.theus.tt.entity.MealEntity;
 import com.theus.tt.exception.CustomerNotFoundException;
 import com.theus.tt.exception.DishNotFoundException;
+import com.theus.tt.mapper.MealMapper;
 import com.theus.tt.repository.MealRepository;
 import com.theus.tt.service.CustomerService;
 import com.theus.tt.service.DishService;
@@ -21,9 +22,10 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class MealServiceImpl implements MealService {
-    private final MealRepository mealRepository;
+    private final MealRepository repository;
     private final DishService dishService;
     private final CustomerService customerService;
+    private final MealMapper mapper;
 
     @Override
     public void createMeal(MealEntryRecord dto)
@@ -33,21 +35,18 @@ public class MealServiceImpl implements MealService {
 
         validateDishesExist(dto.dishes());
 
-        MealEntity meal = new MealEntity();
+        MealEntity meal = mapper.toEntity(dto);
         meal.setCustomer(user);
-        meal.setMealTime(dto.mealTime());
-        meal.setMealType(dto.mealType());
-
         addDishesToMeal(meal, dto.dishes());
 
-        mealRepository.save(meal);
+        repository.save(meal);
     }
 
     @Override
     public List<MealEntity> getMealsByUserAndDate(Long userId, LocalDate date) {
         LocalDateTime start = date.atStartOfDay();
         LocalDateTime end = date.atTime(23, 59, 59);
-        return mealRepository.findByCustomerIdAndMealTimeBetween(userId, start, end);
+        return repository.findByCustomerIdAndMealTimeBetween(userId, start, end);
     }
 
     private void addDishesToMeal(MealEntity meal, List<MealDishRequest> dishes)

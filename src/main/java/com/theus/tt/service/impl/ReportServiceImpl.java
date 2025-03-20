@@ -4,6 +4,7 @@ import com.theus.tt.dto.response.DailyReportRecord;
 import com.theus.tt.dto.response.NutritionHistoryRecord;
 import com.theus.tt.entity.MealEntity;
 import com.theus.tt.exception.CustomerNotFoundException;
+import com.theus.tt.mapper.MealMapper;
 import com.theus.tt.service.CustomerService;
 import com.theus.tt.service.MealService;
 import com.theus.tt.service.ReportService;
@@ -19,6 +20,7 @@ import java.util.List;
 public class ReportServiceImpl implements ReportService {
     private final MealService mealService;
     private final CustomerService customerService;
+    private final MealMapper mapper;
 
     @Override
     public DailyReportRecord generateDailyReport(Long userId, LocalDate date) throws CustomerNotFoundException {
@@ -33,7 +35,7 @@ public class ReportServiceImpl implements ReportService {
                 totalCalories,
                 dailyNorm,
                 totalCalories <= dailyNorm,
-                meals.stream().map(this::mapMealToInfo).toList()
+                meals.stream().map(mapper::mealEntityToMealInfo).toList()
         );
     }
 
@@ -53,19 +55,5 @@ public class ReportServiceImpl implements ReportService {
         }
 
         return new NutritionHistoryRecord(history);
-    }
-
-    private DailyReportRecord.MealInfo mapMealToInfo(MealEntity meal) {
-        return new DailyReportRecord.MealInfo(
-                meal.getMealType(),
-                meal.getMealTime(),
-                meal.getTotalCalories(),
-                meal.getDishes().stream()
-                        .map(md -> new DailyReportRecord.DishInfo(
-                                md.getDish().getName(),
-                                md.getPortions(),
-                                md.getTotalCalories()
-                        )).toList()
-        );
     }
 }
