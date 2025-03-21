@@ -12,8 +12,10 @@ import lombok.*;
 @Entity
 @Getter @Setter
 @NoArgsConstructor
-@Table(name = "customers")
-@EqualsAndHashCode(callSuper = false)
+@Table(name = "customers", indexes = {
+        @Index(name = "idx_customers_email", columnList = "email", unique = true)
+})
+@EqualsAndHashCode(callSuper = true)
 public class CustomerEntity extends AuditableEntity {
 
     @Id
@@ -41,21 +43,4 @@ public class CustomerEntity extends AuditableEntity {
 
     @Enumerated(EnumType.STRING)
     private GoalEnum goal;
-
-    public double calculateDailyCalories() {
-        double bmr = calculateBMR();
-        double activityFactor = 1.2; // Базовый коэффициент активности
-
-        return switch (goal) {
-            case MAINTENANCE -> bmr * activityFactor;
-            case WEIGHT_LOSS -> bmr * activityFactor - 500;
-            case MASS_GAIN ->  bmr * activityFactor + 500;
-        };
-    }
-
-    private double calculateBMR() {
-        return gender == GenderEnum.MALE ?
-                88.362 + (13.397 * weight) + (4.799 * height) - (5.677 * age) :
-                447.593 + (9.247 * weight) + (3.098 * height) - (4.330 * age);
-    }
 }

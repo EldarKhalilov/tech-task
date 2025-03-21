@@ -9,7 +9,7 @@ import lombok.*;
 @Getter @Setter
 @NoArgsConstructor
 @Table(name = "dishes")
-@EqualsAndHashCode(callSuper = false)
+@EqualsAndHashCode(callSuper = true)
 public class DishEntity extends AuditableEntity {
 
     @Id

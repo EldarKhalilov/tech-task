@@ -9,6 +9,6 @@ public record NutritionHistoryRecord(
     public record DailySummary(
             LocalDate date,
             Double totalCalories,
-            Integer mealsCount
+            Long mealsCount
     ) {}
 }

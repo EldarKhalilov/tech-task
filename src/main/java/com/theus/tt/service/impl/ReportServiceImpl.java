@@ -1,16 +1,17 @@
 package com.theus.tt.service.impl;
 
+import com.theus.tt.dto.DailyNutritionProjection;
 import com.theus.tt.dto.response.DailyReportRecord;
 import com.theus.tt.dto.response.NutritionHistoryRecord;
-import com.theus.tt.entity.MealEntity;
-import com.theus.tt.exception.CustomerNotFoundException;
-import com.theus.tt.mapper.MealMapper;
+import com.theus.tt.repository.MealRepository;
 import com.theus.tt.service.CustomerService;
-import com.theus.tt.service.MealService;
 import com.theus.tt.service.ReportService;
 import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Clock;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Collections;
@@ -22,54 +23,60 @@ import java.util.stream.Stream;
 @Service
 @RequiredArgsConstructor
 public class ReportServiceImpl implements ReportService {
-    private final MealService mealService;
     private final CustomerService customerService;
-    private final MealMapper mapper;
+    private final MealRepository mealRepository;
+
+    @Setter
+    private Clock clock = Clock.systemDefaultZone();
 
     @Override
-    public DailyReportRecord generateDailyReport(Long userId, LocalDate date) throws CustomerNotFoundException {
+    @Transactional(readOnly = true)
+    public DailyReportRecord generateDailyReport(Long userId, LocalDate date) {
+        LocalDateTime start = date.atStartOfDay();
+        LocalDateTime end = date.atTime(23, 59, 59);
+
+        Double totalCalories = mealRepository.getDailyCaloriesSum(userId, start, end);
         double dailyNorm = customerService.calculateDailyCalories(userId);
-        List<MealEntity> meals = mealService.getMealsByUserAndDate(userId, date);
 
-        double totalCalories = meals.stream()
-                .mapToDouble(MealEntity::getTotalCalories)
-                .sum();
-
-        return new DailyReportRecord(date,
-                totalCalories,
+        return new DailyReportRecord(
+                date,
+                totalCalories != null ? totalCalories : 0.0,
                 dailyNorm,
-                totalCalories <= dailyNorm,
-                meals.stream().map(mapper::mealEntityToMealInfo).toList()
+                totalCalories != null && totalCalories <= dailyNorm,
+                Collections.emptyList()
         );
     }
 
     @Override
-    public NutritionHistoryRecord getNutritionHistory(Long userId, int days) {
-        LocalDate endDate = LocalDate.now();
+    @Transactional(readOnly = true)
+    public List<NutritionHistoryRecord.DailySummary> getNutritionHistory(Long userId, int days) {
+        LocalDate endDate = LocalDate.now(clock);
         LocalDate startDate = endDate.minusDays(days - 1);
 
-        LocalDateTime startDateTime = startDate.atStartOfDay();
-        LocalDateTime endDateTime = endDate.atTime(23, 59, 59);
+        List<DailyNutritionProjection> results = mealRepository.getNutritionHistoryData(
+                userId,
+                startDate.atStartOfDay(),
+                endDate.atTime(23, 59, 59)
+        );
 
-        List<MealEntity> allMeals = mealService.getMealsByUserAndDateRange(userId, startDateTime, endDateTime);
-
-        Map<LocalDate, List<MealEntity>> mealsByDate = allMeals.stream()
-                .collect(Collectors.groupingBy(
-                        meal -> meal.getMealTime().toLocalDate()
+        Map<LocalDate, DailyStats> statsMap = results.stream()
+                .collect(Collectors.toMap(
+                        DailyNutritionProjection::date,
+                        d -> new DailyStats(d.calories(), d.mealCount())
                 ));
 
-        List<NutritionHistoryRecord.DailySummary> history = Stream
-                .iterate(startDate, date -> date.plusDays(1))
+        return Stream.iterate(startDate, date -> date.plusDays(1))
                 .limit(days)
                 .map(date -> {
-                    List<MealEntity> meals = mealsByDate.getOrDefault(date, Collections.emptyList());
-                    double totalCalories = meals.stream()
-                            .mapToDouble(MealEntity::getTotalCalories)
-                            .sum();
-                    return new NutritionHistoryRecord.DailySummary(date, totalCalories, meals.size());
+                    DailyStats stats = statsMap.getOrDefault(date, new DailyStats(0.0, 0L));
+                    return new NutritionHistoryRecord.DailySummary(
+                            date,
+                            stats.calories(),
+                            stats.mealCount()
+                    );
                 })
                 .toList();
-
-        return new NutritionHistoryRecord(history);
     }
+
+    private record DailyStats(Double calories, Long mealCount) {}
 }

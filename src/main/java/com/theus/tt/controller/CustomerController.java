@@ -1,7 +1,6 @@
 package com.theus.tt.controller;
 
 import com.theus.tt.dto.request.UserCreateRecord;
-import com.theus.tt.exception.CustomerAlreadyExistsException;
 import com.theus.tt.service.CustomerService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -30,8 +29,7 @@ public class CustomerController {
             @ApiResponse(responseCode = "400", description = "Некорректные данные пользователя")
     })
     @PostMapping("/create")
-    public ResponseEntity<String> createUser(@Valid @RequestBody UserCreateRecord dto)
-            throws CustomerAlreadyExistsException {
+    public ResponseEntity<String> createUser(@Valid @RequestBody UserCreateRecord dto) {
         customerService.createUser(dto);
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body("User created successfully");

@@ -10,12 +10,16 @@ import lombok.Setter;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 @Entity
 @Getter @Setter
 @NoArgsConstructor
-@Table(name = "meals")
-@EqualsAndHashCode(callSuper = false)
+@Table(name = "meals", indexes = {
+        @Index(name = "idx_meals_customer_meal_time", columnList = "customer_id, meal_time"),
+        @Index(name = "idx_meals_meal_type", columnList = "meal_type")
+})
+@EqualsAndHashCode(callSuper = true)
 public class MealEntity extends AuditableEntity {
 
     @Id
@@ -34,17 +38,12 @@ public class MealEntity extends AuditableEntity {
     @OneToMany(mappedBy = "meal", cascade = CascadeType.ALL)
     private List<MealDishEntity> dishes = new ArrayList<>();
 
-    // Расчет общей питательной ценности
-    public double getTotalCalories() {
-        return dishes.stream().mapToDouble(MealDishEntity::getTotalCalories).sum();
-    }
-
     // Добавление блюда в прием пищи
     public void addDish(DishEntity dish, int portions) {
-        MealDishEntity mealDish = new MealDishEntity();
-        mealDish.setMeal(this);
-        mealDish.setDish(dish);
-        mealDish.setPortions(portions);
-        dishes.add(mealDish);
+        Objects.requireNonNull(dish, "Dish cannot be null");
+        if (portions < 1) {
+            throw new IllegalArgumentException("Portions must be ≥1");
+        }
+        dishes.add(new MealDishEntity(this, dish, portions));
     }
 }

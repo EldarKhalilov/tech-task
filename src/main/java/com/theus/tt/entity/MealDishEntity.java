@@ -5,11 +5,13 @@ import jakarta.validation.constraints.Min;
 import lombok.*;
 
 @Entity
-@Getter @Setter
+@Getter
 @NoArgsConstructor
-@AllArgsConstructor
-@Table(name = "meal_dishes")
-@EqualsAndHashCode(callSuper = false)
+@Table(name = "meal_dishes", indexes = {
+        @Index(name = "idx_meal_dishes_meal", columnList = "meal_id"),
+        @Index(name = "idx_meal_dishes_dish", columnList = "dish_id")
+})
+@EqualsAndHashCode(callSuper = true)
 public class MealDishEntity extends AuditableEntity {
 
     @Id
@@ -25,10 +27,11 @@ public class MealDishEntity extends AuditableEntity {
 
     @Min(1) private int portions;
 
-    public double getTotalCalories() {
-        if (dish == null) {
-            throw new IllegalStateException("Dish is not set for MealDishEntity id=" + this.id);
-        }
-        return dish.getCaloriesPerPortion() * portions;
+    public MealDishEntity(MealEntity meal,
+                          DishEntity dish,
+                          int portions) {
+        this.meal = meal;
+        this.dish = dish;
+        this.portions = portions;
     }
 }

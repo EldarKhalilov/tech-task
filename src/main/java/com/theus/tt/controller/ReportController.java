@@ -2,7 +2,7 @@ package com.theus.tt.controller;
 
 import com.theus.tt.dto.response.DailyReportRecord;
 import com.theus.tt.dto.response.NutritionHistoryRecord;
-import com.theus.tt.exception.CustomerNotFoundException;
+import com.theus.tt.exception.notfound.CustomerNotFoundException;
 import com.theus.tt.service.ReportService;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.time.LocalDate;
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -25,8 +26,7 @@ public class ReportController {
     @GetMapping("/daily")
     public ResponseEntity<DailyReportRecord> getDailyReport(
             @RequestParam Long userId,
-            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date
-    ) throws CustomerNotFoundException {
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
         return ResponseEntity.ok(reportService.generateDailyReport(userId, date));
     }
 
@@ -34,18 +34,16 @@ public class ReportController {
     @GetMapping("/daily-check")
     public ResponseEntity<Boolean> checkDailyLimit(
             @RequestParam Long userId,
-            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date
-    ) throws CustomerNotFoundException {
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
         DailyReportRecord report = reportService.generateDailyReport(userId, date);
         return ResponseEntity.ok(report.isWithinLimit());
     }
 
     @Operation(summary = "История питания")
     @GetMapping("/history")
-    public ResponseEntity<NutritionHistoryRecord> getHistory(
+    public ResponseEntity<List<NutritionHistoryRecord.DailySummary>> getHistory(
             @RequestParam Long userId,
-            @RequestParam(defaultValue = "7") int days
-    ) throws CustomerNotFoundException {
+            @RequestParam(defaultValue = "7") int days) {
         return ResponseEntity.ok(reportService.getNutritionHistory(userId, days));
     }
 }

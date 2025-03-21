@@ -5,35 +5,52 @@ import com.theus.tt.dto.request.MealEntryRecord;
 import com.theus.tt.entity.CustomerEntity;
 import com.theus.tt.entity.DishEntity;
 import com.theus.tt.entity.MealEntity;
-import com.theus.tt.exception.CustomerNotFoundException;
-import com.theus.tt.exception.DishNotFoundException;
+import com.theus.tt.exception.notfound.DishNotFoundException;
+import com.theus.tt.exception.notfound.MealNotFoundException;
 import com.theus.tt.mapper.MealMapper;
 import com.theus.tt.repository.MealRepository;
+import com.theus.tt.service.BaseService;
 import com.theus.tt.service.CustomerService;
 import com.theus.tt.service.DishService;
 import com.theus.tt.service.MealService;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
 
-import java.time.LocalDate;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.function.Function;
+
+import static java.util.stream.Collectors.toMap;
 
 @Service
-@RequiredArgsConstructor
-public class MealServiceImpl implements MealService {
-    private final MealRepository repository;
+public class MealServiceImpl extends BaseService<MealEntity, Long> implements MealService {
+    private final MealRepository mealRepository;
     private final DishService dishService;
     private final CustomerService customerService;
     private final MealMapper mapper;
 
+    public MealServiceImpl(
+            MealRepository mealRepository,
+            DishService dishService,
+            CustomerService customerService,
+            MealMapper mapper) {
+        super(
+                mealRepository,
+                MealNotFoundException::new
+        );
+        this.mealRepository = mealRepository;
+        this.dishService = dishService;
+        this.customerService = customerService;
+        this.mapper = mapper;
+    }
+
     @Override
-    public void createMeal(MealEntryRecord dto)
-            throws CustomerNotFoundException, DishNotFoundException {
-
+    @Transactional
+    public void createMeal(MealEntryRecord dto) throws DishNotFoundException {
         CustomerEntity user = customerService.getById(dto.userId());
-
-        validateDishesExist(dto.dishes());
 
         MealEntity meal = mapper.toEntity(dto);
         meal.setCustomer(user);
@@ -42,40 +59,26 @@ public class MealServiceImpl implements MealService {
         repository.save(meal);
     }
 
-    // для одного запроса на конкретный день
     @Override
-    public List<MealEntity> getMealsByUserAndDate(Long userId, LocalDate date) {
-        LocalDateTime start = date.atStartOfDay();
-        LocalDateTime end = date.atTime(23, 59, 59);
-        return repository.findByCustomerIdAndMealTimeBetween(userId, start, end);
-    }
-
-    // для нескольких запросов по дням
-    @Override
+    @Transactional(readOnly = true)
     public List<MealEntity> getMealsByUserAndDateRange(Long userId, LocalDateTime start, LocalDateTime end) {
-        return repository.findByCustomerIdAndMealTimeBetween(userId, start, end);
+        return mealRepository.findByCustomerIdAndMealTimeBetween(userId, start, end);
     }
 
     private void addDishesToMeal(MealEntity meal, List<MealDishRequest> dishes)
             throws DishNotFoundException {
+        List<Long> dishIds = dishes.stream()
+                .map(MealDishRequest::dishId)
+                .toList();
+
+        Map<Long, DishEntity> dishMap = dishService.findAllById(dishIds).stream()
+                .collect(toMap(DishEntity::getId, Function.identity()));
 
         for (MealDishRequest dishReq : dishes) {
-            DishEntity dish = dishService.getDishById(dishReq.dishId());
+            DishEntity dish = Optional.ofNullable(dishMap.get(dishReq.dishId()))
+                    .orElseThrow(() -> new DishNotFoundException(dishReq.dishId()));
+
             meal.addDish(dish, dishReq.portions());
-        }
-    }
-
-    private void validateDishesExist(List<MealDishRequest> dishes)
-            throws DishNotFoundException {
-        boolean allDishesExist = dishes.stream()
-                .allMatch(dishReq -> dishService.existsById(dishReq.dishId()));
-
-        if (!allDishesExist) {
-            List<Long> missingIds = dishes.stream()
-                    .map(MealDishRequest::dishId)
-                    .filter(id -> !dishService.existsById(id))
-                    .toList();
-            throw new DishNotFoundException("Dishes not found: " + missingIds);
         }
     }
 }

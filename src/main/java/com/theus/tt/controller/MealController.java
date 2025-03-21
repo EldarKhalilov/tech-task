@@ -1,8 +1,6 @@
 package com.theus.tt.controller;
 
 import com.theus.tt.dto.request.MealEntryRecord;
-import com.theus.tt.exception.CustomerNotFoundException;
-import com.theus.tt.exception.DishNotFoundException;
 import com.theus.tt.service.MealService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -33,8 +31,7 @@ public class MealController {
     })
     @PostMapping("/create")
     public ResponseEntity<String> createMealEntry(
-            @Valid @RequestBody MealEntryRecord dto
-    ) throws CustomerNotFoundException, DishNotFoundException {
+            @Valid @RequestBody MealEntryRecord dto) {
         mealService.createMeal(dto);
         return ResponseEntity.status(HttpStatus.CREATED).body("Meal added");
     }
