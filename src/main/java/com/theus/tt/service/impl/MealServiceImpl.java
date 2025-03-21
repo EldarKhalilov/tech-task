@@ -14,6 +14,7 @@ import com.theus.tt.service.CustomerService;
 import com.theus.tt.service.DishService;
 import com.theus.tt.service.MealService;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -25,6 +26,7 @@ import java.util.function.Function;
 
 import static java.util.stream.Collectors.toMap;
 
+@Slf4j
 @Service
 public class MealServiceImpl extends BaseService<MealEntity, Long> implements MealService {
     private final MealRepository mealRepository;
@@ -49,24 +51,35 @@ public class MealServiceImpl extends BaseService<MealEntity, Long> implements Me
 
     @Override
     @Transactional
-    public void createMeal(MealEntryRecord dto) throws DishNotFoundException {
-        CustomerEntity user = customerService.getById(dto.userId());
+    public void createMeal(MealEntryRecord dto) {
+        log.info("Creating meal");
+        try {
+            CustomerEntity user = customerService.getById(dto.userId());
+            log.debug("Found user: {}", user.getId());
 
-        MealEntity meal = mapper.toEntity(dto);
-        meal.setCustomer(user);
-        addDishesToMeal(meal, dto.dishes());
+            MealEntity meal = mapper.toEntity(dto);
+            meal.setCustomer(user);
+            addDishesToMeal(meal, dto.dishes());
 
-        repository.save(meal);
+            repository.save(meal);
+            log.info("Created meal ID: {}", meal.getId());
+        } catch (Exception e) {
+            log.error("Error creating meal: {}", e.getMessage(), e);
+            throw e;
+        }
     }
 
     @Override
     @Transactional(readOnly = true)
     public List<MealEntity> getMealsByUserAndDateRange(Long userId, LocalDateTime start, LocalDateTime end) {
-        return mealRepository.findByCustomerIdAndMealTimeBetween(userId, start, end);
+        log.debug("Getting meals for user ID: {} between {} and {}", userId, start, end);
+        List<MealEntity> meals = mealRepository.findByCustomerIdAndMealTimeBetween(userId, start, end);
+        log.info("Found {} meals for user ID: {}", meals.size(), userId);
+        return meals;
     }
 
-    private void addDishesToMeal(MealEntity meal, List<MealDishRequest> dishes)
-            throws DishNotFoundException {
+    private void addDishesToMeal(MealEntity meal, List<MealDishRequest> dishes) {
+        log.debug("Adding {} dishes to meal", dishes.size());
         List<Long> dishIds = dishes.stream()
                 .map(MealDishRequest::dishId)
                 .toList();
@@ -76,9 +89,13 @@ public class MealServiceImpl extends BaseService<MealEntity, Long> implements Me
 
         for (MealDishRequest dishReq : dishes) {
             DishEntity dish = Optional.ofNullable(dishMap.get(dishReq.dishId()))
-                    .orElseThrow(() -> new DishNotFoundException(dishReq.dishId()));
+                    .orElseThrow(() -> {
+                        log.error("Dish not found ID: {}", dishReq.dishId());
+                        return new DishNotFoundException(dishReq.dishId());
+                    });
 
             meal.addDish(dish, dishReq.portions());
+            log.trace("Added dish ID: {} with {} portions", dish.getId(), dishReq.portions());
         }
     }
 }

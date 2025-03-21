@@ -9,9 +9,11 @@ import com.theus.tt.repository.CustomerRepository;
 import com.theus.tt.service.BaseService;
 import com.theus.tt.service.CustomerService;
 import com.theus.tt.util.CaloriesCalculatorUtil;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+@Slf4j
 @Service
 public class CustomerServiceImpl extends BaseService<CustomerEntity, Long> implements CustomerService {
     private final CustomerRepository customerRepository;
@@ -33,15 +35,22 @@ public class CustomerServiceImpl extends BaseService<CustomerEntity, Long> imple
     @Override
     @Transactional
     public void createUser(UserCreateRecord dto) {
+        log.info("Creating user with name: {}", dto.name());
         if (customerRepository.existsByEmail(dto.email())) {
+            log.warn("User with email **** already exists");
             throw new CustomerAlreadyExistsException();
         }
-        repository.save(mapper.toEntity(dto));
+        CustomerEntity entity = mapper.toEntity(dto);
+        repository.save(entity);
+        log.debug("Created user: {}", entity.getName());
     }
 
     @Override
     public double calculateDailyCalories(Long userId) {
+        log.debug("Calculating daily calories for user");
         CustomerEntity user = getById(userId);
-        return util.calculateDailyCalories(user);
+        double calories = util.calculateDailyCalories(user);
+        log.info("Calculated daily calories: {}", calories);
+        return calories;
     }
 }

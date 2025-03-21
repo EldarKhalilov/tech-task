@@ -14,3 +14,9 @@ spring:
 
 server:
   port: 8081
+
+logging:
+  level:
+    root: INFO
+    com.theus.tt.service: DEBUG
+    org.hibernate.sql: DEBUG

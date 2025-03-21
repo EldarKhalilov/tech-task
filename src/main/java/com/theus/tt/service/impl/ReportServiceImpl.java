@@ -8,6 +8,7 @@ import com.theus.tt.service.CustomerService;
 import com.theus.tt.service.ReportService;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -20,6 +21,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class ReportServiceImpl implements ReportService {
@@ -32,11 +34,15 @@ public class ReportServiceImpl implements ReportService {
     @Override
     @Transactional(readOnly = true)
     public DailyReportRecord generateDailyReport(Long userId, LocalDate date) {
+        log.info("Generating daily report for user ID: {} date: {}", userId, date);
         LocalDateTime start = date.atStartOfDay();
         LocalDateTime end = date.atTime(23, 59, 59);
 
         Double totalCalories = mealRepository.getDailyCaloriesSum(userId, start, end);
+        log.debug("Total calories: {} for user ID: {}", totalCalories, userId);
+
         double dailyNorm = customerService.calculateDailyCalories(userId);
+        log.debug("Daily norm: {} for user ID: {}", dailyNorm, userId);
 
         return new DailyReportRecord(
                 date,
@@ -50,6 +56,7 @@ public class ReportServiceImpl implements ReportService {
     @Override
     @Transactional(readOnly = true)
     public List<NutritionHistoryRecord.DailySummary> getNutritionHistory(Long userId, int days) {
+        log.info("Getting nutrition history for user ID: {} days: {}", userId, days);
         LocalDate endDate = LocalDate.now(clock);
         LocalDate startDate = endDate.minusDays(days - 1);
 
@@ -58,6 +65,8 @@ public class ReportServiceImpl implements ReportService {
                 startDate.atStartOfDay(),
                 endDate.atTime(23, 59, 59)
         );
+
+        log.debug("Received {} daily nutrition projections", results.size());
 
         Map<LocalDate, DailyStats> statsMap = results.stream()
                 .collect(Collectors.toMap(

@@ -6,6 +6,7 @@ import com.theus.tt.exception.notfound.CustomerNotFoundException;
 import com.theus.tt.service.ReportService;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -16,6 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.time.LocalDate;
 import java.util.List;
 
+@Slf4j
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/reports")
@@ -27,6 +29,7 @@ public class ReportController {
     public ResponseEntity<DailyReportRecord> getDailyReport(
             @RequestParam Long userId,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
+        log.info("Incoming get daily report request");
         return ResponseEntity.ok(reportService.generateDailyReport(userId, date));
     }
 
@@ -35,7 +38,9 @@ public class ReportController {
     public ResponseEntity<Boolean> checkDailyLimit(
             @RequestParam Long userId,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
+        log.info("Incoming check daily limit request");
         DailyReportRecord report = reportService.generateDailyReport(userId, date);
+        log.debug("Outgoing create meal response");
         return ResponseEntity.ok(report.isWithinLimit());
     }
 
@@ -44,6 +49,7 @@ public class ReportController {
     public ResponseEntity<List<NutritionHistoryRecord.DailySummary>> getHistory(
             @RequestParam Long userId,
             @RequestParam(defaultValue = "7") int days) {
+        log.info("Incoming get history request");
         return ResponseEntity.ok(reportService.getNutritionHistory(userId, days));
     }
 }
