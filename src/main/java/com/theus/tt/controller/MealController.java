@@ -32,8 +32,7 @@ public class MealController {
             @ApiResponse(responseCode = "400", description = "Ошибка валидации")
     })
     @PostMapping("/create")
-    public ResponseEntity<String> createMealEntry(
-            @Valid @RequestBody MealEntryRecord dto) {
+    public ResponseEntity<String> createMealEntry(@Valid @RequestBody MealEntryRecord dto) {
         log.info("Incoming create meal request, meal type: {}", dto.mealType());
         mealService.createMeal(dto);
         log.debug("Outgoing create meal response");

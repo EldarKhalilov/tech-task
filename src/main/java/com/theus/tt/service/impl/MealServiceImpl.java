@@ -35,10 +35,8 @@ public class MealServiceImpl extends BaseService<MealEntity, Long> implements Me
     private final MealMapper mapper;
 
     public MealServiceImpl(
-            MealRepository mealRepository,
-            DishService dishService,
-            CustomerService customerService,
-            MealMapper mapper) {
+            MealRepository mealRepository, DishService dishService,
+            CustomerService customerService, MealMapper mapper) {
         super(
                 mealRepository,
                 MealNotFoundException::new

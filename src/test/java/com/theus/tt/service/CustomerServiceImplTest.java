@@ -40,8 +40,8 @@ public class CustomerServiceImplTest {
     @Test
     public void createUser_ShouldCreateUser() {
         UserCreateRecord dto = new UserCreateRecord(
-                "test@mail.ru",
                 "John Doe",
+                "test@mail.ru",
                 (byte) 30,
                 170.0,
                 (short) 70,
@@ -61,8 +61,8 @@ public class CustomerServiceImplTest {
     @Test
     public void createUser_ShouldThrowExceptionWhenEmailExists() {
         UserCreateRecord dto = new UserCreateRecord(
-                "test@mail.ru",
                 "John Doe",
+                "test@mail.ru",
                 (byte) 30,
                 170.0,
                 (short) 70,
