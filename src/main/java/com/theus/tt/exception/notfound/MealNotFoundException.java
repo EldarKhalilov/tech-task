@@ -1,9 +1,12 @@
 package com.theus.tt.exception.notfound;
 
-import com.theus.tt.exception.EntityNotFoundException;
+import lombok.experimental.StandardException;
 
-public class MealNotFoundException extends EntityNotFoundException {
-    public MealNotFoundException(Long id) {
-        super("Meal not found with id: " + id);
+@StandardException
+public class MealNotFoundException extends RuntimeException {
+    private static final String MESSAGE = "Meal not found";
+
+    public MealNotFoundException() {
+        super(MESSAGE);
     }
 }

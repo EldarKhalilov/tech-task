@@ -6,7 +6,6 @@ import com.theus.tt.exception.CustomerAlreadyExistsException;
 import com.theus.tt.exception.notfound.CustomerNotFoundException;
 import com.theus.tt.mapper.CustomerMapper;
 import com.theus.tt.repository.CustomerRepository;
-import com.theus.tt.service.BaseService;
 import com.theus.tt.service.CustomerService;
 import com.theus.tt.util.CaloriesCalculatorUtil;
 import lombok.extern.slf4j.Slf4j;
@@ -15,7 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Slf4j
 @Service
-public class CustomerServiceImpl extends BaseService<CustomerEntity, Long> implements CustomerService {
+public class CustomerServiceImpl implements CustomerService {
     private final CustomerRepository customerRepository;
     private final CaloriesCalculatorUtil util;
     private final CustomerMapper mapper;
@@ -23,10 +22,6 @@ public class CustomerServiceImpl extends BaseService<CustomerEntity, Long> imple
     protected CustomerServiceImpl(CustomerRepository customerRepository,
                                   CaloriesCalculatorUtil util,
                                   CustomerMapper mapper) {
-        super(
-                customerRepository,
-                CustomerNotFoundException::new
-        );
         this.customerRepository = customerRepository;
         this.util = util;
         this.mapper = mapper;
@@ -41,7 +36,7 @@ public class CustomerServiceImpl extends BaseService<CustomerEntity, Long> imple
             throw new CustomerAlreadyExistsException();
         }
         CustomerEntity entity = mapper.toEntity(dto);
-        repository.save(entity);
+        customerRepository.save(entity);
         log.debug("Created user: {}", entity.getName());
     }
 
@@ -52,5 +47,11 @@ public class CustomerServiceImpl extends BaseService<CustomerEntity, Long> imple
         double calories = util.calculateDailyCalories(user);
         log.info("Calculated daily calories: {}", calories);
         return calories;
+    }
+
+    @Override
+    public CustomerEntity getById(Long id) {
+        return customerRepository.findById(id)
+                .orElseThrow(CustomerNotFoundException::new);
     }
 }

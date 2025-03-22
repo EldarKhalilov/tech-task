@@ -6,10 +6,8 @@ import com.theus.tt.entity.CustomerEntity;
 import com.theus.tt.entity.DishEntity;
 import com.theus.tt.entity.MealEntity;
 import com.theus.tt.exception.notfound.DishNotFoundException;
-import com.theus.tt.exception.notfound.MealNotFoundException;
 import com.theus.tt.mapper.MealMapper;
 import com.theus.tt.repository.MealRepository;
-import com.theus.tt.service.BaseService;
 import com.theus.tt.service.CustomerService;
 import com.theus.tt.service.DishService;
 import com.theus.tt.service.MealService;
@@ -28,7 +26,7 @@ import static java.util.stream.Collectors.toMap;
 
 @Slf4j
 @Service
-public class MealServiceImpl extends BaseService<MealEntity, Long> implements MealService {
+public class MealServiceImpl implements MealService {
     private final MealRepository mealRepository;
     private final DishService dishService;
     private final CustomerService customerService;
@@ -37,10 +35,6 @@ public class MealServiceImpl extends BaseService<MealEntity, Long> implements Me
     public MealServiceImpl(
             MealRepository mealRepository, DishService dishService,
             CustomerService customerService, MealMapper mapper) {
-        super(
-                mealRepository,
-                MealNotFoundException::new
-        );
         this.mealRepository = mealRepository;
         this.dishService = dishService;
         this.customerService = customerService;
@@ -59,7 +53,7 @@ public class MealServiceImpl extends BaseService<MealEntity, Long> implements Me
             meal.setCustomer(user);
             addDishesToMeal(meal, dto.dishes());
 
-            repository.save(meal);
+            mealRepository.save(meal);
             log.info("Created meal ID: {}", meal.getId());
         } catch (Exception e) {
             log.error("Error creating meal: {}", e.getMessage(), e);
@@ -89,7 +83,7 @@ public class MealServiceImpl extends BaseService<MealEntity, Long> implements Me
             DishEntity dish = Optional.ofNullable(dishMap.get(dishReq.dishId()))
                     .orElseThrow(() -> {
                         log.error("Dish not found ID: {}", dishReq.dishId());
-                        return new DishNotFoundException(dishReq.dishId());
+                        return new DishNotFoundException();
                     });
 
             meal.addDish(dish, dishReq.portions());

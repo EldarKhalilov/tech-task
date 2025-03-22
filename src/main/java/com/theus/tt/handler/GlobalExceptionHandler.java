@@ -1,7 +1,9 @@
 package com.theus.tt.handler;
 
 import com.theus.tt.exception.CustomerAlreadyExistsException;
-import com.theus.tt.exception.EntityNotFoundException;
+import com.theus.tt.exception.notfound.CustomerNotFoundException;
+import com.theus.tt.exception.notfound.DishNotFoundException;
+import com.theus.tt.exception.notfound.MealNotFoundException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -35,14 +37,6 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
     }
 
-    @ExceptionHandler(EntityNotFoundException.class)
-    public ResponseEntity<Map<String, String>> handleEntityNotFound(EntityNotFoundException ex) {
-        Map<String, String> response = new LinkedHashMap<>();
-        response.put("application name", appName);
-        response.put("message", ex.getMessage());
-        return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
-    }
-
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<Map<String, String>> handleIllegalArgument(IllegalArgumentException ex) {
         Map<String, String> response = new LinkedHashMap<>();
@@ -53,6 +47,30 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(CustomerAlreadyExistsException.class)
     public ResponseEntity<Map<String, String>> handleCustomerAlreadyExists(Exception ex) {
+        Map<String, String> response = new LinkedHashMap<>();
+        response.put("application name", appName);
+        response.put("message", ex.getMessage());
+        return new ResponseEntity<>(response, HttpStatus.CONFLICT);
+    }
+
+    @ExceptionHandler(CustomerNotFoundException.class)
+    public ResponseEntity<Map<String, String>> handleCustomerNotFound(Exception ex) {
+        Map<String, String> response = new LinkedHashMap<>();
+        response.put("application name", appName);
+        response.put("message", ex.getMessage());
+        return new ResponseEntity<>(response, HttpStatus.CONFLICT);
+    }
+
+    @ExceptionHandler(DishNotFoundException.class)
+    public ResponseEntity<Map<String, String>> handleDishNotFound(Exception ex) {
+        Map<String, String> response = new LinkedHashMap<>();
+        response.put("application name", appName);
+        response.put("message", ex.getMessage());
+        return new ResponseEntity<>(response, HttpStatus.CONFLICT);
+    }
+
+    @ExceptionHandler(MealNotFoundException.class)
+    public ResponseEntity<Map<String, String>> handleMealNotFound(Exception ex) {
         Map<String, String> response = new LinkedHashMap<>();
         response.put("application name", appName);
         response.put("message", ex.getMessage());
