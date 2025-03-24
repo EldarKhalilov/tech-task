@@ -1,0 +1,71 @@
+POST http://localhost:8081/api/v1/customers/create
+
+JSON:
+{
+    "name": "Иван Иванов",
+    "email": "ivan@example.com",
+    "age": 30,
+    "height": 180,
+    "weight": 75.5,
+    "gender": "MALE",
+    "goal": "WEIGHT_LOSS"
+}
+
+-------------------------------------
+
+POST http://localhost:8081/api/v1/dishes/create
+
+JSON:
+{
+    "name": "Греческий салат",
+    "caloriesPerPortion": 250,
+    "proteins": 10.5,
+    "fats": 15.0,
+    "carbohydrates": 20.0
+}
+
+-------------------------------------
+
+POST http://localhost:8081/api/v1/meals/create
+
+JSON:
+{
+    "userId": 1,
+    "mealTime": "2023-10-10T12:30:00",
+    "mealType": "LUNCH",
+    "dishes": [
+        {
+            "dishId": 1,
+            "portions": 2
+        }
+    ]
+}
+
+-------------------------------------
+
+GET http://localhost:8081/api/v1/reports/daily
+
+JSON:
+{
+    "date": "2023-10-10",
+    "totalCalories": 1800.0,
+    "dailyNorm": 2000.0,
+    "withinLimit": true,
+    "meals": []
+}
+
+-------------------------------------
+
+GET http://localhost:8081/api/v1/reports/daily-check
+
+PARAM:
+userId=1
+date=2023-10-10
+
+-------------------------------------
+
+GET http://localhost:8081/api/v1/reports/history
+
+PARAM:
+userId=1
+days=5 [Optional]

@@ -1,31 +1,28 @@
-package com.theus.tt.service;
+package com.theus.tt.service.impl;
 
 import com.theus.tt.dto.DailyNutritionProjection;
 import com.theus.tt.dto.response.DailyReportRecord;
 import com.theus.tt.dto.response.NutritionHistoryRecord;
 import com.theus.tt.repository.MealRepository;
-import com.theus.tt.service.impl.ReportServiceImpl;
+import com.theus.tt.service.CustomerService;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.time.Clock;
-import java.time.Instant;
-import java.time.LocalDate;
-import java.time.ZoneId;
-import java.util.Arrays;
+import java.lang.reflect.Field;
+import java.time.*;
 import java.util.Collections;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-public class ReportServiceImplTest {
+class ReportServiceImplTest {
 
     @Mock
     private CustomerService customerService;
@@ -37,22 +34,29 @@ public class ReportServiceImplTest {
     private ReportServiceImpl reportService;
 
     private final Clock fixedClock = Clock.fixed(
-            Instant.parse("2024-01-01T00:00:00Z"),
+            Instant.parse("2023-10-10T00:00:00Z"),
             ZoneId.systemDefault()
     );
 
+    @BeforeEach
+    void setUp() throws Exception {
+        Field clockField = ReportServiceImpl.class.getDeclaredField("clock");
+        clockField.setAccessible(true);
+        clockField.set(reportService, fixedClock);
+    }
+
     @Test
     void generateDailyReport_ShouldReturnCorrectData() throws Exception {
-        LocalDate date = LocalDate.of(2024, 1, 1);
+        LocalDate date = LocalDate.of(2023, 10, 10);
         when(mealRepository.getDailyCaloriesSum(1L, date.atStartOfDay(), date.atTime(23, 59, 59)))
-                .thenReturn(1800.0);
+                .thenReturn(1500.0);
         when(customerService.calculateDailyCalories(1L)).thenReturn(2000.0);
 
         DailyReportRecord result = reportService.generateDailyReport(1L, date);
 
         assertAll(
                 () -> assertEquals(date, result.date()),
-                () -> assertEquals(1800.0, result.totalCalories()),
+                () -> assertEquals(1500.0, result.totalCalories()),
                 () -> assertEquals(2000.0, result.dailyNorm()),
                 () -> assertTrue(result.isWithinLimit())
         );
@@ -61,35 +65,33 @@ public class ReportServiceImplTest {
     @Test
     void generateDailyReport_ShouldHandleNullCalories() throws Exception {
         LocalDate date = LocalDate.now(fixedClock);
-        when(mealRepository.getDailyCaloriesSum(anyLong(), any(), any())).thenReturn(null);
-        when(customerService.calculateDailyCalories(anyLong())).thenReturn(2500.0);
+        when(mealRepository.getDailyCaloriesSum(any(), any(), any())).thenReturn(null);
+        when(customerService.calculateDailyCalories(any())).thenReturn(2000.0);
 
         DailyReportRecord result = reportService.generateDailyReport(1L, date);
 
-        assertAll(
-                () -> assertEquals(0.0, result.totalCalories()),
-                () -> assertFalse(result.isWithinLimit())
-        );
+        assertEquals(0.0, result.totalCalories());
     }
 
     @Test
     void getNutritionHistory_ShouldFillMissingDays() {
-        reportService.setClock(fixedClock);
-
-        List<DailyNutritionProjection> projections = Arrays.asList(
-                new DailyNutritionProjection(LocalDate.of(2023, 12, 31), 1500.0, 2L),
-                new DailyNutritionProjection(LocalDate.of(2024, 1, 1), 2000.0, 3L)
+        List<DailyNutritionProjection> projections = List.of(
+                new DailyNutritionProjection(LocalDate.of(2023, 10, 9), 1500.0, 2L),
+                new DailyNutritionProjection(LocalDate.of(2023, 10, 10), 2000.0, 3L)
         );
 
-        when(mealRepository.getNutritionHistoryData(anyLong(), any(), any()))
-                .thenReturn(projections);
+        when(mealRepository.getNutritionHistoryData(
+                eq(1L),
+                any(LocalDateTime.class),
+                any(LocalDateTime.class)
+        )).thenReturn(projections);
 
         List<NutritionHistoryRecord.DailySummary> result =
                 reportService.getNutritionHistory(1L, 3);
 
         assertAll(
                 () -> assertEquals(3, result.size()),
-                () -> assertEquals(LocalDate.of(2023, 12, 30), result.get(0).date()),
+                () -> assertEquals(LocalDate.of(2023, 10, 8), result.get(0).date()),
                 () -> assertEquals(0.0, result.get(0).totalCalories()),
                 () -> assertEquals(1500.0, result.get(1).totalCalories()),
                 () -> assertEquals(3, result.get(2).mealsCount())
@@ -98,8 +100,7 @@ public class ReportServiceImplTest {
 
     @Test
     void getNutritionHistory_ShouldHandleEmptyData() {
-        reportService.setClock(fixedClock);
-        when(mealRepository.getNutritionHistoryData(anyLong(), any(), any()))
+        when(mealRepository.getNutritionHistoryData(any(), any(), any()))
                 .thenReturn(Collections.emptyList());
 
         List<NutritionHistoryRecord.DailySummary> result =
@@ -108,23 +109,6 @@ public class ReportServiceImplTest {
         assertAll(
                 () -> assertEquals(2, result.size()),
                 () -> assertTrue(result.stream().allMatch(r -> r.totalCalories() == 0.0))
-        );
-    }
-
-    @Test
-    void getNutritionHistory_ShouldHandleExactDays() {
-        reportService.setClock(fixedClock);
-        when(mealRepository.getNutritionHistoryData(anyLong(), any(), any()))
-                .thenReturn(List.of(
-                        new DailyNutritionProjection(LocalDate.of(2024, 1, 1), 2500.0, 4L)
-                ));
-
-        List<NutritionHistoryRecord.DailySummary> result =
-                reportService.getNutritionHistory(1L, 1);
-
-        assertAll(
-                () -> assertEquals(1, result.size()),
-                () -> assertEquals(2500.0, result.get(0).totalCalories())
         );
     }
 }

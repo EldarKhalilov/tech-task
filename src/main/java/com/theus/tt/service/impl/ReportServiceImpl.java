@@ -7,8 +7,6 @@ import com.theus.tt.exception.notfound.CustomerNotFoundException;
 import com.theus.tt.repository.MealRepository;
 import com.theus.tt.service.CustomerService;
 import com.theus.tt.service.ReportService;
-import lombok.RequiredArgsConstructor;
-import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,12 +22,16 @@ import java.util.stream.Stream;
 
 @Slf4j
 @Service
-@RequiredArgsConstructor
 public class ReportServiceImpl implements ReportService {
     private final CustomerService customerService;
     private final MealRepository mealRepository;
-    @Setter // for tests
-    private Clock clock = Clock.systemDefaultZone();
+    private final Clock clock;
+
+    public ReportServiceImpl(CustomerService customerService, MealRepository mealRepository) {
+        this.customerService = customerService;
+        this.mealRepository = mealRepository;
+        this.clock = Clock.systemDefaultZone();
+    }
 
     @Override
     @Transactional(readOnly = true)

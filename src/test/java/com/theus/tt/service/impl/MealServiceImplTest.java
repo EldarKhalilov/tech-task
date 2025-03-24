@@ -1,4 +1,4 @@
-package com.theus.tt.service;
+package com.theus.tt.service.impl;
 
 import com.theus.tt.dto.request.MealDishRequest;
 import com.theus.tt.dto.request.MealEntryRecord;
@@ -8,7 +8,9 @@ import com.theus.tt.entity.MealEntity;
 import com.theus.tt.entity.enums.MealType;
 import com.theus.tt.mapper.MealMapper;
 import com.theus.tt.repository.MealRepository;
-import com.theus.tt.service.impl.MealServiceImpl;
+import com.theus.tt.service.CustomerService;
+import com.theus.tt.service.DishService;
+import com.theus.tt.service.MealService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;

@@ -35,7 +35,7 @@ public interface MealRepository extends JpaRepository<MealEntity, Long> {
     )
     FROM MealEntity m
     JOIN m.dishes md
-    WHERE m.customer.id = :userId \s
+    WHERE m.customer.id = :userId 
       AND m.mealTime BETWEEN :start AND :end
     GROUP BY CAST(m.mealTime AS localdate)
     """)

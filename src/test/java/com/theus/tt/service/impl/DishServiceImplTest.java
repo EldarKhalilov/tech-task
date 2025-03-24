@@ -1,4 +1,4 @@
-package com.theus.tt.service;
+package com.theus.tt.service.impl;
 
 import com.theus.tt.dto.request.DishCreateRecord;
 import com.theus.tt.entity.DishEntity;
