@@ -1,7 +1,6 @@
 package com.theus.tt.controller;
 
 import com.theus.tt.dto.request.UserCreateRecord;
-import com.theus.tt.exception.CustomerAlreadyExistsException;
 import com.theus.tt.service.CustomerService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;

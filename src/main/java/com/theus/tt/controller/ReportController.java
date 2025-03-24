@@ -2,7 +2,6 @@ package com.theus.tt.controller;
 
 import com.theus.tt.dto.response.DailyReportRecord;
 import com.theus.tt.dto.response.NutritionHistoryRecord;
-import com.theus.tt.exception.notfound.CustomerNotFoundException;
 import com.theus.tt.service.ReportService;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;

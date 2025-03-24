@@ -42,7 +42,7 @@ public class MealServiceImplTest {
     private MealServiceImpl mealService;
 
     @Test
-    void createMeal_ShouldAddDishesAndSave() {
+    void createMeal_ShouldAddDishesAndSave() throws Exception {
         // Arrange
         Long dishId = 1L;
         MealEntryRecord dto = new MealEntryRecord(

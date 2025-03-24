@@ -1,8 +1,6 @@
 package com.theus.tt.controller;
 
 import com.theus.tt.dto.request.MealEntryRecord;
-import com.theus.tt.exception.notfound.CustomerNotFoundException;
-import com.theus.tt.exception.notfound.DishNotFoundException;
 import com.theus.tt.service.MealService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;

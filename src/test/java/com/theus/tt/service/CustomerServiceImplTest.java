@@ -38,7 +38,7 @@ public class CustomerServiceImplTest {
     private CustomerServiceImpl customerService;
 
     @Test
-    public void createUser_ShouldCreateUser() {
+    public void createUser_ShouldCreateUser() throws Exception {
         UserCreateRecord dto = new UserCreateRecord(
                 "John Doe",
                 "test@mail.ru",
@@ -77,7 +77,7 @@ public class CustomerServiceImplTest {
     }
 
     @Test
-    public void calculateDailyCalories_ShouldReturnValue() {
+    public void calculateDailyCalories_ShouldReturnValue() throws Exception {
         Long userId = 1L;
         CustomerEntity user = mock(CustomerEntity.class);
         when(repository.findById(userId)).thenReturn(Optional.of(user));
@@ -98,7 +98,7 @@ public class CustomerServiceImplTest {
     }
 
     @Test
-    void getById_ShouldReturnUser() {
+    void getById_ShouldReturnUser() throws Exception {
         Long userId = 1L;
         CustomerEntity user = new CustomerEntity();
         when(repository.findById(userId)).thenReturn(Optional.of(user));
