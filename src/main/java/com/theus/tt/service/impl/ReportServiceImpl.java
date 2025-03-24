@@ -8,6 +8,7 @@ import com.theus.tt.repository.MealRepository;
 import com.theus.tt.service.CustomerService;
 import com.theus.tt.service.ReportService;
 import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -27,7 +28,8 @@ import java.util.stream.Stream;
 public class ReportServiceImpl implements ReportService {
     private final CustomerService customerService;
     private final MealRepository mealRepository;
-    private final Clock clock = Clock.systemDefaultZone();
+    @Setter // for tests
+    private Clock clock = Clock.systemDefaultZone();
 
     @Override
     @Transactional(readOnly = true)
