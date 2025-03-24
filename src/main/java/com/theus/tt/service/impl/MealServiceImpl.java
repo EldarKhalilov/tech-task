@@ -5,6 +5,7 @@ import com.theus.tt.dto.request.MealEntryRecord;
 import com.theus.tt.entity.CustomerEntity;
 import com.theus.tt.entity.DishEntity;
 import com.theus.tt.entity.MealEntity;
+import com.theus.tt.exception.notfound.CustomerNotFoundException;
 import com.theus.tt.exception.notfound.DishNotFoundException;
 import com.theus.tt.mapper.MealMapper;
 import com.theus.tt.repository.MealRepository;
@@ -43,7 +44,7 @@ public class MealServiceImpl implements MealService {
 
     @Override
     @Transactional
-    public void createMeal(MealEntryRecord dto) {
+    public void createMeal(MealEntryRecord dto) throws CustomerNotFoundException, DishNotFoundException {
         log.info("Creating meal");
         try {
             CustomerEntity user = customerService.getById(dto.userId());
@@ -70,7 +71,7 @@ public class MealServiceImpl implements MealService {
         return meals;
     }
 
-    private void addDishesToMeal(MealEntity meal, List<MealDishRequest> dishes) {
+    private void addDishesToMeal(MealEntity meal, List<MealDishRequest> dishes) throws DishNotFoundException {
         log.debug("Adding {} dishes to meal", dishes.size());
         List<Long> dishIds = dishes.stream()
                 .map(MealDishRequest::dishId)

@@ -28,7 +28,7 @@ public class ReportController {
     @GetMapping("/daily")
     public ResponseEntity<DailyReportRecord> getDailyReport(
             @RequestParam Long userId,
-            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) throws Exception {
         log.info("Incoming get daily report request");
         return ResponseEntity.ok(reportService.generateDailyReport(userId, date));
     }
@@ -37,7 +37,7 @@ public class ReportController {
     @GetMapping("/daily-check")
     public ResponseEntity<Boolean> checkDailyLimit(
             @RequestParam Long userId,
-            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) throws Exception {
         log.info("Incoming check daily limit request");
         DailyReportRecord report = reportService.generateDailyReport(userId, date);
         log.debug("Outgoing create meal response");

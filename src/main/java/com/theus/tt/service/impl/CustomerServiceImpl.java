@@ -29,7 +29,7 @@ public class CustomerServiceImpl implements CustomerService {
 
     @Override
     @Transactional
-    public void createUser(UserCreateRecord dto) {
+    public void createUser(UserCreateRecord dto) throws CustomerAlreadyExistsException {
         log.info("Creating user with name: {}", dto.name());
         if (customerRepository.existsByEmail(dto.email())) {
             log.warn("User with email **** already exists");
@@ -41,7 +41,7 @@ public class CustomerServiceImpl implements CustomerService {
     }
 
     @Override
-    public double calculateDailyCalories(Long userId) {
+    public double calculateDailyCalories(Long userId) throws CustomerNotFoundException {
         log.debug("Calculating daily calories for user");
         CustomerEntity user = getById(userId);
         double calories = util.calculateDailyCalories(user);
@@ -50,7 +50,7 @@ public class CustomerServiceImpl implements CustomerService {
     }
 
     @Override
-    public CustomerEntity getById(Long id) {
+    public CustomerEntity getById(Long id) throws CustomerNotFoundException {
         return customerRepository.findById(id)
                 .orElseThrow(CustomerNotFoundException::new);
     }

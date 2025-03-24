@@ -1,6 +1,8 @@
 package com.theus.tt.controller;
 
 import com.theus.tt.dto.request.MealEntryRecord;
+import com.theus.tt.exception.notfound.CustomerNotFoundException;
+import com.theus.tt.exception.notfound.DishNotFoundException;
 import com.theus.tt.service.MealService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -32,7 +34,7 @@ public class MealController {
             @ApiResponse(responseCode = "400", description = "Ошибка валидации")
     })
     @PostMapping("/create")
-    public ResponseEntity<String> createMealEntry(@Valid @RequestBody MealEntryRecord dto) {
+    public ResponseEntity<String> createMealEntry(@Valid @RequestBody MealEntryRecord dto) throws Exception {
         log.info("Incoming create meal request, meal type: {}", dto.mealType());
         mealService.createMeal(dto);
         log.debug("Outgoing create meal response");

@@ -3,6 +3,7 @@ package com.theus.tt.service.impl;
 import com.theus.tt.dto.DailyNutritionProjection;
 import com.theus.tt.dto.response.DailyReportRecord;
 import com.theus.tt.dto.response.NutritionHistoryRecord;
+import com.theus.tt.exception.notfound.CustomerNotFoundException;
 import com.theus.tt.repository.MealRepository;
 import com.theus.tt.service.CustomerService;
 import com.theus.tt.service.ReportService;
@@ -30,7 +31,7 @@ public class ReportServiceImpl implements ReportService {
 
     @Override
     @Transactional(readOnly = true)
-    public DailyReportRecord generateDailyReport(Long userId, LocalDate date) {
+    public DailyReportRecord generateDailyReport(Long userId, LocalDate date) throws CustomerNotFoundException {
         log.info("Generating daily report for user ID: {} date: {}", userId, date);
         LocalDateTime start = date.atStartOfDay();
         LocalDateTime end = date.atTime(23, 59, 59);
