@@ -8,7 +8,6 @@ import com.theus.tt.exception.CustomerAlreadyExistsException;
 import com.theus.tt.exception.notfound.CustomerNotFoundException;
 import com.theus.tt.mapper.CustomerMapper;
 import com.theus.tt.repository.CustomerRepository;
-import com.theus.tt.service.impl.CustomerServiceImpl;
 import com.theus.tt.util.CaloriesCalculatorUtil;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

@@ -4,7 +4,6 @@ import com.theus.tt.dto.request.DishCreateRecord;
 import com.theus.tt.entity.DishEntity;
 import com.theus.tt.mapper.DishMapper;
 import com.theus.tt.repository.DishRepository;
-import com.theus.tt.service.impl.DishServiceImpl;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;

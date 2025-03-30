@@ -10,7 +10,6 @@ import com.theus.tt.mapper.MealMapper;
 import com.theus.tt.repository.MealRepository;
 import com.theus.tt.service.CustomerService;
 import com.theus.tt.service.DishService;
-import com.theus.tt.service.MealService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
