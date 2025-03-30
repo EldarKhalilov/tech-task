@@ -10,6 +10,6 @@
 
 Скопировать проект на локальную машину
 
-В bash / powershell / .. внутри корневой директории проекта ввести: "mvn clean install" и "docker compose up -d"
+В bash / powershell / .. внутри корневой директории проекта ввести: "mvn clean install" и "docker compose build", затем "docker compose up -d"
 
 Приложение заработает по адресу localhost:8081 (windows)
