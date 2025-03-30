@@ -2,12 +2,21 @@ package com.theus.tt.mapper;
 
 import com.theus.tt.dto.request.MealEntryRecord;
 import com.theus.tt.entity.MealEntity;
-import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
+import org.springframework.stereotype.Component;
 
-@Mapper(componentModel = "spring")
-public interface MealMapper {
-    @Mapping(target = "customer", ignore = true)
-    @Mapping(target = "dishes", ignore = true)
-    MealEntity toEntity(MealEntryRecord dto);
+@Component
+public class MealMapper {
+
+    public MealEntity toEntity(MealEntryRecord dto) {
+        if ( dto == null ) {
+            return null;
+        }
+
+        MealEntity mealEntity = new MealEntity();
+
+        mealEntity.setMealTime( dto.mealTime() );
+        mealEntity.setMealType( dto.mealType() );
+
+        return mealEntity;
+    }
 }

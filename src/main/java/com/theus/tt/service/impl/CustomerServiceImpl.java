@@ -8,24 +8,18 @@ import com.theus.tt.mapper.CustomerMapper;
 import com.theus.tt.repository.CustomerRepository;
 import com.theus.tt.service.CustomerService;
 import com.theus.tt.util.CaloriesCalculatorUtil;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Slf4j
 @Service
+@RequiredArgsConstructor
 public class CustomerServiceImpl implements CustomerService {
     private final CustomerRepository customerRepository;
     private final CaloriesCalculatorUtil util;
     private final CustomerMapper mapper;
-
-    protected CustomerServiceImpl(CustomerRepository customerRepository,
-                                  CaloriesCalculatorUtil util,
-                                  CustomerMapper mapper) {
-        this.customerRepository = customerRepository;
-        this.util = util;
-        this.mapper = mapper;
-    }
 
     @Override
     @Transactional

@@ -13,6 +13,7 @@ import com.theus.tt.service.CustomerService;
 import com.theus.tt.service.DishService;
 import com.theus.tt.service.MealService;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -27,20 +28,12 @@ import static java.util.stream.Collectors.toMap;
 
 @Slf4j
 @Service
+@RequiredArgsConstructor
 public class MealServiceImpl implements MealService {
     private final MealRepository mealRepository;
     private final DishService dishService;
     private final CustomerService customerService;
     private final MealMapper mapper;
-
-    public MealServiceImpl(
-            MealRepository mealRepository, DishService dishService,
-            CustomerService customerService, MealMapper mapper) {
-        this.mealRepository = mealRepository;
-        this.dishService = dishService;
-        this.customerService = customerService;
-        this.mapper = mapper;
-    }
 
     @Override
     @Transactional

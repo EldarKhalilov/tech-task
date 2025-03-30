@@ -9,9 +9,6 @@ services:
       DB_URL: jdbc:postgresql://database-example:5432/example
       DB_USER: abuser
       DB_PASSWORD: abuser
-    volumes:
-      - ./src:/app/src
-      - ./pom.xml:/app/pom.xml
     ports:
       - "8081:8080"
     networks:

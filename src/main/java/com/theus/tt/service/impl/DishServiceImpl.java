@@ -5,6 +5,7 @@ import com.theus.tt.entity.DishEntity;
 import com.theus.tt.mapper.DishMapper;
 import com.theus.tt.repository.DishRepository;
 import com.theus.tt.service.DishService;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -13,15 +14,10 @@ import java.util.List;
 
 @Slf4j
 @Service
+@RequiredArgsConstructor
 public class DishServiceImpl implements DishService {
     private final DishRepository repository;
     private final DishMapper mapper;
-
-    protected DishServiceImpl(DishRepository repository1,
-                              DishMapper mapper) {
-        this.repository = repository1;
-        this.mapper = mapper;
-    }
 
     @Override
     @Transactional
